@@ -1,0 +1,424 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import { subscribeToIssue, updateIssueStatus } from '@/services/issueService';
+import {
+  subscribeToComments,
+  addComment,
+  subscribeToStatusUpdates,
+  addStatusUpdate,
+} from '@/services/commentService';
+import { Issue, Comment, StatusUpdate, IssueStatus } from '@/types';
+import { ISSUE_CATEGORIES, ISSUE_STATUSES } from '@/lib/constants';
+import { StatusBadge, PriorityBadge } from '@/components/ui/Badge';
+import Button from '@/components/ui/Button';
+import Card, { CardBody, CardHeader } from '@/components/ui/Card';
+import LocationPicker from '@/components/features/LocationPicker';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import toast from 'react-hot-toast';
+import { format } from 'date-fns';
+import {
+  ArrowLeft,
+  Clock,
+  MapPin,
+  MessageSquare,
+  Send,
+  User,
+  CheckCircle,
+  AlertTriangle,
+} from 'lucide-react';
+import Link from 'next/link';
+
+export default function IssueDetailsPage() {
+  const params = useParams();
+  const { user, profile } = useAuth();
+  const issueId = params.id as string;
+
+  const [issue, setIssue] = useState<Issue | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [statusUpdates, setStatusUpdates] = useState<StatusUpdate[]>([]);
+  const [newComment, setNewComment] = useState('');
+  const [newStatus, setNewStatus] = useState<IssueStatus | ''>('');
+  const [statusNote, setStatusNote] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [submittingComment, setSubmittingComment] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+
+  useEffect(() => {
+    if (!issueId) return;
+
+    const unsubIssue = subscribeToIssue(issueId, (data) => {
+      setIssue(data);
+      setLoading(false);
+    });
+
+    const unsubComments = subscribeToComments(issueId, setComments);
+    const unsubStatus = subscribeToStatusUpdates(issueId, setStatusUpdates);
+
+    return () => {
+      unsubIssue();
+      unsubComments();
+      unsubStatus();
+    };
+  }, [issueId]);
+
+  const handleAddComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newComment.trim() || !user || !profile) return;
+
+    setSubmittingComment(true);
+    try {
+      await addComment(issueId, user.uid, profile.displayName, profile.role, newComment);
+      setNewComment('');
+      toast.success('Comment added');
+    } catch {
+      toast.error('Failed to add comment');
+    } finally {
+      setSubmittingComment(false);
+    }
+  };
+
+  const handleStatusUpdate = async () => {
+    if (!newStatus || !user || !profile || !issue) return;
+
+    setUpdatingStatus(true);
+    try {
+      await updateIssueStatus(issueId, newStatus);
+      await addStatusUpdate(
+        issueId,
+        issue.status,
+        newStatus,
+        user.uid,
+        profile.displayName,
+        statusNote || `Status changed to ${newStatus}`
+      );
+      setNewStatus('');
+      setStatusNote('');
+      toast.success('Status updated successfully');
+    } catch {
+      toast.error('Failed to update status');
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
+  if (loading) return <LoadingSpinner />;
+  if (!issue) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-12 text-center">
+        <h2 className="text-xl font-bold text-gray-900">Issue not found</h2>
+        <p className="text-gray-500 mt-2">The issue you&apos;re looking for doesn&apos;t exist.</p>
+      </div>
+    );
+  }
+
+  const category = ISSUE_CATEGORIES.find((c) => c.value === issue.category);
+  const isAdmin = profile?.role === 'admin';
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <Link
+        href={isAdmin ? '/admin/issues' : '/my-reports'}
+        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-4"
+      >
+        <ArrowLeft size={16} />
+        Back to {isAdmin ? 'All Issues' : 'My Reports'}
+      </Link>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Content */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Issue Header */}
+          <Card>
+            <CardBody className="space-y-4">
+              {/* Emergency Banner */}
+              {issue.priority === 'emergency' && (
+                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                  <AlertTriangle size={18} />
+                  <span className="font-medium text-sm">Emergency Priority Issue</span>
+                </div>
+              )}
+
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-2xl">{category?.icon}</span>
+                    <h1 className="text-xl font-bold text-gray-900">
+                      {category?.label || issue.category}
+                    </h1>
+                  </div>
+                  <div className="flex items-center gap-3 mt-2">
+                    <StatusBadge status={issue.status} />
+                    <PriorityBadge priority={issue.priority} />
+                  </div>
+                </div>
+                <div className="text-right text-sm text-gray-500">
+                  <div className="flex items-center gap-1">
+                    <Clock size={14} />
+                    {format(new Date(issue.createdAt), 'MMM d, yyyy h:mm a')}
+                  </div>
+                </div>
+              </div>
+
+              {/* Image */}
+              {issue.imageUrl && (
+                <img
+                  src={issue.imageUrl}
+                  alt="Issue"
+                  className="w-full h-64 object-cover rounded-lg border border-gray-200"
+                />
+              )}
+
+              {/* Description */}
+              {issue.description && (
+                <div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-1">Description</h3>
+                  <p className="text-gray-600">{issue.description}</p>
+                </div>
+              )}
+
+              {/* Voice Note */}
+              {issue.voiceUrl && (
+                <div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-1">Voice Note</h3>
+                  <audio src={issue.voiceUrl} controls className="w-full" />
+                </div>
+              )}
+
+              {/* Reporter Info */}
+              <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <User size={14} className="text-blue-600" />
+                </div>
+                <div className="text-sm">
+                  <p className="font-medium text-gray-900">{issue.userName}</p>
+                  <p className="text-gray-500">{issue.userEmail}</p>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+
+          {/* Map */}
+          <Card>
+            <CardHeader>
+              <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+                <MapPin size={18} />
+                Location
+              </h2>
+            </CardHeader>
+            <CardBody>
+              <LocationPicker
+                initialLat={issue.locationLat}
+                initialLng={issue.locationLng}
+                readOnly
+                onLocationSelect={() => {}}
+              />
+              {issue.locationAddress && (
+                <p className="text-sm text-gray-600 mt-2">{issue.locationAddress}</p>
+              )}
+            </CardBody>
+          </Card>
+
+          {/* Comments Section */}
+          <Card>
+            <CardHeader>
+              <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+                <MessageSquare size={18} />
+                Comments ({comments.length})
+              </h2>
+            </CardHeader>
+            <CardBody className="space-y-4">
+              {comments.length === 0 && (
+                <p className="text-sm text-gray-500 text-center py-4">No comments yet</p>
+              )}
+              {comments.map((comment) => (
+                <div key={comment.id} className="flex gap-3">
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      comment.userRole === 'admin' ? 'bg-purple-100' : 'bg-blue-100'
+                    }`}
+                  >
+                    <User
+                      size={14}
+                      className={comment.userRole === 'admin' ? 'text-purple-600' : 'text-blue-600'}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-900">
+                        {comment.userName}
+                      </span>
+                      {comment.userRole === 'admin' && (
+                        <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">
+                          Admin
+                        </span>
+                      )}
+                      <span className="text-xs text-gray-400">
+                        {format(new Date(comment.createdAt), 'MMM d, h:mm a')}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-1">{comment.text}</p>
+                  </div>
+                </div>
+              ))}
+
+              {/* Add Comment Form */}
+              {user && (
+                <form onSubmit={handleAddComment} className="flex gap-2 pt-3 border-t border-gray-100">
+                  <input
+                    type="text"
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Add a comment..."
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <Button type="submit" size="sm" loading={submittingComment} disabled={!newComment.trim()}>
+                    <Send size={14} />
+                  </Button>
+                </form>
+              )}
+            </CardBody>
+          </Card>
+        </div>
+
+        {/* Sidebar */}
+        <div className="space-y-6">
+          {/* Status Update Panel (Admin Only) */}
+          {isAdmin && (
+            <Card>
+              <CardHeader>
+                <h2 className="font-semibold text-gray-900">Update Status</h2>
+              </CardHeader>
+              <CardBody className="space-y-3">
+                <select
+                  value={newStatus}
+                  onChange={(e) => setNewStatus(e.target.value as IssueStatus)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select new status</option>
+                  {ISSUE_STATUSES.filter((s) => s.value !== issue.status).map((s) => (
+                    <option key={s.value} value={s.value}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
+                <textarea
+                  placeholder="Add a note about this update..."
+                  value={statusNote}
+                  onChange={(e) => setStatusNote(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  rows={3}
+                />
+                <Button
+                  onClick={handleStatusUpdate}
+                  loading={updatingStatus}
+                  disabled={!newStatus}
+                  className="w-full"
+                >
+                  <CheckCircle size={16} />
+                  Update Status
+                </Button>
+              </CardBody>
+            </Card>
+          )}
+
+          {/* Status Timeline */}
+          <Card>
+            <CardHeader>
+              <h2 className="font-semibold text-gray-900">Status History</h2>
+            </CardHeader>
+            <CardBody>
+              <div className="space-y-4">
+                {/* Creation event */}
+                <div className="flex gap-3">
+                  <div className="flex flex-col items-center">
+                    <div className="w-3 h-3 bg-blue-600 rounded-full" />
+                    {statusUpdates.length > 0 && <div className="w-0.5 flex-1 bg-gray-200 mt-1" />}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Issue Created</p>
+                    <p className="text-xs text-gray-500">
+                      {format(new Date(issue.createdAt), 'MMM d, yyyy h:mm a')}
+                    </p>
+                  </div>
+                </div>
+
+                {statusUpdates.map((update, i) => (
+                  <div key={update.id} className="flex gap-3">
+                    <div className="flex flex-col items-center">
+                      <div className="w-3 h-3 bg-blue-600 rounded-full" />
+                      {i < statusUpdates.length - 1 && (
+                        <div className="w-0.5 flex-1 bg-gray-200 mt-1" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">
+                        <StatusBadge status={update.previousStatus} />
+                        <span className="mx-1">→</span>
+                        <StatusBadge status={update.newStatus} />
+                      </p>
+                      {update.note && (
+                        <p className="text-xs text-gray-600 mt-1">{update.note}</p>
+                      )}
+                      <p className="text-xs text-gray-400 mt-1">
+                        by {update.updatedByName} •{' '}
+                        {format(new Date(update.createdAt), 'MMM d, h:mm a')}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardBody>
+          </Card>
+
+          {/* Issue Details */}
+          <Card>
+            <CardHeader>
+              <h2 className="font-semibold text-gray-900">Details</h2>
+            </CardHeader>
+            <CardBody className="space-y-3">
+              <DetailRow label="Category" value={`${category?.icon} ${category?.label}`} />
+              <DetailRow label="Priority">
+                <PriorityBadge priority={issue.priority} />
+              </DetailRow>
+              <DetailRow label="Status">
+                <StatusBadge status={issue.status} />
+              </DetailRow>
+              <DetailRow
+                label="Location"
+                value={`${issue.locationLat.toFixed(4)}, ${issue.locationLng.toFixed(4)}`}
+              />
+              <DetailRow
+                label="Reported"
+                value={format(new Date(issue.createdAt), 'MMM d, yyyy')}
+              />
+              <DetailRow
+                label="Last Updated"
+                value={format(new Date(issue.updatedAt), 'MMM d, yyyy')}
+              />
+            </CardBody>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DetailRow({
+  label,
+  value,
+  children,
+}: {
+  label: string;
+  value?: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <div className="flex justify-between items-center text-sm">
+      <span className="text-gray-500">{label}</span>
+      {children || <span className="text-gray-900 font-medium">{value}</span>}
+    </div>
+  );
+}
