@@ -28,7 +28,7 @@ const INDIAN_LANGUAGES = [
 ];
 
 export default function SettingsPage() {
-  const { user, profile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const { theme, toggleTheme } = useTheme();
   
   const [displayName, setDisplayName] = useState('');
@@ -96,6 +96,7 @@ export default function SettingsPage() {
         phone,
         language,
       });
+      await refreshProfile();
       toast.success('Profile updated successfully');
       
       // Note: We don't implement full i18n translation here, just store the preference
@@ -194,11 +195,19 @@ export default function SettingsPage() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Phone Number (Optional)
                   </label>
-                  <Input 
-                    value={phone} 
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value)}
-                    placeholder="+91 9876543210"
-                  />
+                  <div className="flex bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-shadow">
+                    <div className="flex items-center px-3 bg-gray-50 dark:bg-gray-900 border-r border-gray-300 dark:border-gray-600">
+                      <span className="text-xl mr-2" aria-hidden="true" role="img">🇮🇳</span>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">+91</span>
+                    </div>
+                    <input
+                      type="tel"
+                      className="flex-1 px-4 py-2.5 bg-transparent text-gray-900 dark:text-white outline-none w-full text-sm"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                      placeholder="9876543210"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

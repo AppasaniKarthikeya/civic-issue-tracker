@@ -26,7 +26,7 @@ export default function RootLayout({
           crossOrigin=""
         />
       </head>
-      <body className={`${inter.className} antialiased bg-gray-50 dark:bg-black dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-300`}>
+      <body className={`${inter.className} antialiased bg-gray-50 dark:bg-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-300`}>
         <Providers>{children}</Providers>
       </body>
     </html>

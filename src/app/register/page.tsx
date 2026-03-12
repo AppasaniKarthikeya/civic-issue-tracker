@@ -66,13 +66,13 @@ export default function RegisterPage() {
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
           <div className="text-center mb-8">
             <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4">
               <UserPlus className="text-white" size={24} />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">Create Account</h1>
-            <p className="text-gray-500 mt-1">Join CivicTrack to start reporting issues</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Create Account</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Join CivicTrack to start reporting issues</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -114,15 +114,15 @@ export default function RegisterPage() {
 
             {/* Role Selection */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">Register as</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Register as</label>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, role: 'citizen' })}
                   className={`p-3 rounded-lg border-2 text-sm font-medium transition-colors ${
                     formData.role === 'citizen'
-                      ? 'border-blue-600 bg-blue-50 text-blue-700'
-                      : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                      ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
+                      : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600'
                   }`}
                 >
                   🙋 Citizen
@@ -132,8 +132,8 @@ export default function RegisterPage() {
                   onClick={() => setFormData({ ...formData, role: 'admin' })}
                   className={`p-3 rounded-lg border-2 text-sm font-medium transition-colors ${
                     formData.role === 'admin'
-                      ? 'border-blue-600 bg-blue-50 text-blue-700'
-                      : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                      ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
+                      : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600'
                   }`}
                 >
                   🏛️ Authority

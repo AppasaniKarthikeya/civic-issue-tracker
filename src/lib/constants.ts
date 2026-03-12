@@ -6,12 +6,12 @@ export const ISSUE_CATEGORIES: { value: IssueCategory; label: string; icon: stri
   { value: 'pothole', label: 'Pothole', icon: '🕳️' },
   { value: 'garbage', label: 'Garbage Collection', icon: '🗑️' },
   { value: 'water_supply', label: 'Water Supply', icon: '💧' },
-  { value: 'electrical', label: 'Electrical Outages & Streetlight', icon: '⚡' },
+  { value: 'electrical', label: 'Electrical Outages', icon: '⚡' },
   { value: 'streetlight', label: 'Streetlight Failure', icon: '💡' },
   { value: 'drainage', label: 'Drainage Problem', icon: '🌊' },
   { value: 'encroachment', label: 'Encroachment', icon: '🚧' },
   { value: 'public_transport', label: 'Inadequate Public Transport', icon: '🚌' },
-  { value: 'other', label: 'Other', icon: '📋' },
+  { value: 'other', label: 'Others', icon: '📋' },
 ];
 
 export const ISSUE_PRIORITIES: { value: IssuePriority; label: string; color: string }[] = [
