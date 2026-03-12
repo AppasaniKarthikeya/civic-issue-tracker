@@ -50,41 +50,41 @@ export default function CitizenDashboard() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Welcome Section */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
           Welcome, {profile?.displayName}! 👋
         </h1>
-        <p className="text-gray-600 mt-1">Here&apos;s an overview of your reported issues</p>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">Here&apos;s an overview of your reported issues</p>
       </div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Total Reports</p>
-              <p className="text-3xl font-bold text-gray-900 mt-1">{issues.length}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Reports</p>
+              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{issues.length}</p>
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
               <FileText size={24} className="text-blue-600" />
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Pending</p>
-              <p className="text-3xl font-bold text-yellow-600 mt-1">{pendingCount}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Pending</p>
+              <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-500 mt-1">{pendingCount}</p>
             </div>
             <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
               <List size={24} className="text-yellow-600" />
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Resolved</p>
-              <p className="text-3xl font-bold text-green-600 mt-1">{resolvedCount}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Resolved</p>
+              <p className="text-3xl font-bold text-green-600 dark:text-green-500 mt-1">{resolvedCount}</p>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
               <List size={24} className="text-green-600" />
@@ -111,12 +111,12 @@ export default function CitizenDashboard() {
 
       {/* Recent Issues */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Reports</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Reports</h2>
         {recentIssues.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
-            <FileText size={48} className="mx-auto text-gray-300 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900">No reports yet</h3>
-            <p className="text-gray-500 mt-1">Start by reporting a civic issue in your area</p>
+          <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm border-dashed">
+            <FileText size={48} className="mx-auto text-gray-300 dark:text-gray-600 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">No reports yet</h3>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Start by reporting a civic issue in your area</p>
             <Link href="/report" className="mt-4 inline-block">
               <Button>
                 <PlusCircle size={18} />
