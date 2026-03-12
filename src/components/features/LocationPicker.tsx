@@ -151,7 +151,7 @@ export default function LocationPicker({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <label className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           Location <span className="text-red-500">*</span>
         </label>
         {!readOnly && (
@@ -174,10 +174,10 @@ export default function LocationPicker({
       />
 
       {selectedLocation && (
-        <div className="flex items-start gap-2 p-2 bg-blue-50 rounded-lg">
-          <MapPin size={16} className="text-blue-600 mt-0.5 flex-shrink-0" />
-          <div className="text-xs text-gray-600">
-            <p className="font-medium text-gray-900">
+        <div className="flex items-start gap-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <MapPin size={16} className="text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+          <div className="text-xs text-gray-600 dark:text-gray-300">
+            <p className="font-medium text-gray-900 dark:text-white">
               {selectedLocation.lat.toFixed(6)}, {selectedLocation.lng.toFixed(6)}
             </p>
             {address && <p className="mt-0.5">{address}</p>}
@@ -186,7 +186,7 @@ export default function LocationPicker({
       )}
 
       {!selectedLocation && !readOnly && (
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-gray-500 dark:text-gray-400">
           Click on the map to select a location, or use your current location.
         </p>
       )}

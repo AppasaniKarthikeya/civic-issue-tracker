@@ -74,8 +74,8 @@ export default function ImageUpload({ onImageSelect, previewUrl, onRemove }: Ima
 
   return (
     <div
-      className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
-        dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
+      className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer bg-white dark:bg-gray-800 ${
+        dragActive ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
       }`}
       onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
       onDragLeave={() => setDragActive(false)}
@@ -91,14 +91,14 @@ export default function ImageUpload({ onImageSelect, previewUrl, onRemove }: Ima
         className="hidden"
       />
       <div className="flex flex-col items-center gap-2">
-        <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-          <ImageIcon size={24} className="text-gray-400" />
+        <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+          <ImageIcon size={24} className="text-gray-400 dark:text-gray-500" />
         </div>
         <div>
-          <p className="text-sm font-medium text-gray-700">
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
             Click to upload or drag and drop
           </p>
-          <p className="text-xs text-gray-500 mt-1">PNG, JPG, JPEG up to 10MB</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">PNG, JPG, JPEG up to 10MB</p>
         </div>
       </div>
     </div>
