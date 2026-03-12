@@ -10,6 +10,7 @@ import { StatusBadge, PriorityBadge } from '@/components/ui/Badge';
 import IssueFiltersBar from '@/components/features/IssueFiltersBar';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function AdminMapPage() {
   const { user, profile, loading: authLoading } = useAuth();
@@ -206,11 +207,14 @@ export default function AdminMapPage() {
               </h3>
 
               {selectedIssue.imageUrl && (
-                <img
-                  src={selectedIssue.imageUrl}
-                  alt="Issue"
-                  className="w-full h-40 object-cover rounded-lg"
-                />
+                <div className="relative w-full h-40">
+                  <Image
+                    src={selectedIssue.imageUrl}
+                    alt="Issue"
+                    fill
+                    className="object-cover rounded-lg"
+                  />
+                </div>
               )}
 
               <div className="flex gap-2">

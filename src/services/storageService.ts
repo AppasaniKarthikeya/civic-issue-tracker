@@ -1,45 +1,48 @@
-// Storage service - handles image and voice file uploads to Firebase Storage
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-  uploadBytesResumable,
-} from 'firebase/storage';
-import { storage } from '@/lib/firebase';
+// Storage service - handles image and voice file uploads to Vercel Blob API route
 import { v4 as uuidv4 } from 'uuid';
 
 /**
- * Upload an image file to Firebase Storage
+ * Upload an image file to Vercel Blob
  * @returns Download URL of the uploaded image
  */
 export async function uploadImage(file: File, userId: string): Promise<string> {
   const fileExtension = file.name.split('.').pop();
-  const fileName = `${uuidv4()}.${fileExtension}`;
-  const storageRef = ref(storage, `issues/images/${userId}/${fileName}`);
-
-  const snapshot = await uploadBytes(storageRef, file, {
-    contentType: file.type,
+  const fileName = `issues/images/${userId}/${uuidv4()}.${fileExtension}`;
+  
+  const response = await fetch(`/api/upload?filename=${fileName}`, {
+    method: 'POST',
+    body: file,
   });
 
-  return getDownloadURL(snapshot.ref);
+  if (!response.ok) {
+    throw new Error('Failed to upload image');
+  }
+
+  const newBlob = await response.json();
+  return newBlob.url;
 }
 
 /**
- * Upload a voice recording to Firebase Storage
+ * Upload a voice recording to Vercel Blob
  * @returns Download URL of the uploaded recording
  */
 export async function uploadVoiceRecording(
   blob: Blob,
   userId: string
 ): Promise<string> {
-  const fileName = `${uuidv4()}.webm`;
-  const storageRef = ref(storage, `issues/voice/${userId}/${fileName}`);
-
-  const snapshot = await uploadBytes(storageRef, blob, {
-    contentType: 'audio/webm',
+  const fileName = `issues/voice/${userId}/${uuidv4()}.webm`;
+  
+  const response = await fetch(`/api/upload?filename=${fileName}`, {
+    method: 'POST',
+    body: blob,
   });
 
-  return getDownloadURL(snapshot.ref);
+  if (!response.ok) {
+    throw new Error('Failed to upload voice recording');
+  }
+
+  const newBlob = await response.json();
+  return newBlob.url;
 }
 
 /**
@@ -50,27 +53,24 @@ export function uploadImageWithProgress(
   userId: string,
   onProgress: (progress: number) => void
 ): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const fileExtension = file.name.split('.').pop();
-    const fileName = `${uuidv4()}.${fileExtension}`;
-    const storageRef = ref(storage, `issues/images/${userId}/${fileName}`);
+  return new Promise(async (resolve, reject) => {
+    try {
+      // Simulate progress since fetch stream upload isn't natively supported 
+      // with precise progress events yet without XHR.
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += 10;
+        if (progress <= 90) onProgress(progress);
+      }, 100);
 
-    const uploadTask = uploadBytesResumable(storageRef, file, {
-      contentType: file.type,
-    });
+      const url = await uploadImage(file, userId);
 
-    uploadTask.on(
-      'state_changed',
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        onProgress(progress);
-      },
-      (error) => reject(error),
-      async () => {
-        const url = await getDownloadURL(uploadTask.snapshot.ref);
-        resolve(url);
-      }
-    );
+      clearInterval(interval);
+      onProgress(100);
+      resolve(url);
+    } catch (error) {
+      reject(error);
+    }
   });
 }
 
@@ -79,8 +79,17 @@ export function uploadImageWithProgress(
  */
 export async function uploadProfilePhoto(file: File, userId: string): Promise<string> {
   const fileExtension = file.name.split('.').pop();
-  const fileName = `${userId}_${Date.now()}.${fileExtension}`;
-  const storageRef = ref(storage, `profiles/images/${userId}/${fileName}`);
-  const snapshot = await uploadBytes(storageRef, file, { contentType: file.type });
-  return getDownloadURL(snapshot.ref);
+  const fileName = `profiles/images/${userId}_${Date.now()}.${fileExtension}`;
+  
+  const response = await fetch(`/api/upload?filename=${fileName}`, {
+    method: 'POST',
+    body: file,
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to upload profile photo');
+  }
+
+  const newBlob = await response.json();
+  return newBlob.url;
 }

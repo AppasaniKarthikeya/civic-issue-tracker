@@ -8,6 +8,7 @@ import { StatusBadge, PriorityBadge } from '@/components/ui/Badge';
 import Card from '@/components/ui/Card';
 import { MapPin, Clock, AlertTriangle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import Image from 'next/image';
 
 interface IssueCardProps {
   issue: Issue;
@@ -25,12 +26,13 @@ export default function IssueCard({ issue, showUser = false }: IssueCardProps) {
       className={`overflow-hidden ${issue.priority === 'emergency' ? 'ring-2 ring-red-300' : ''}`}
     >
       {/* Image */}
-      <div className="relative h-40 bg-gray-100">
+      <div className="relative h-40 bg-gray-100 dark:bg-zinc-800">
         {issue.imageUrl ? (
-          <img
+          <Image
             src={issue.imageUrl}
             alt={issue.description || 'Issue image'}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400">

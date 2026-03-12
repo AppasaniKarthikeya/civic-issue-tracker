@@ -2,6 +2,7 @@
 
 import React, { useCallback, useState } from 'react';
 import { X, Image as ImageIcon } from 'lucide-react';
+import Image from 'next/image';
 
 interface ImageUploadProps {
   onImageSelect: (file: File) => void;
@@ -53,11 +54,12 @@ export default function ImageUpload({ onImageSelect, previewUrl, onRemove }: Ima
 
   if (preview) {
     return (
-      <div className="relative">
-        <img
+      <div className="relative h-48 w-full border border-gray-200 dark:border-zinc-700 overflow-hidden rounded-lg">
+        <Image
           src={preview}
           alt="Issue preview"
-          className="w-full h-48 object-cover rounded-lg border border-gray-200"
+          fill
+          className="object-cover"
         />
         <button
           type="button"

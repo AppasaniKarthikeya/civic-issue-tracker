@@ -132,11 +132,14 @@ export default function SettingsPage() {
                       <Loader2 className="animate-spin text-blue-600" size={24} />
                     </div>
                   ) : photoUrl ? (
-                    <img 
-                      src={photoUrl} 
-                      alt="Profile" 
-                      className="w-32 h-32 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-md"
-                    />
+                    <div className="relative w-32 h-32 border-4 border-white dark:border-gray-700 shadow-md rounded-full overflow-hidden">
+                      <Image 
+                        src={photoUrl} 
+                        alt="Profile" 
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
                   ) : (
                     <div className="w-32 h-32 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center border-4 border-white dark:border-gray-700 shadow-md">
                       <User size={48} className="text-blue-600 dark:text-blue-400" />

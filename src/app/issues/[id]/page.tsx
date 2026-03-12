@@ -30,6 +30,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function IssueDetailsPage() {
   const params = useParams();
@@ -164,11 +165,14 @@ export default function IssueDetailsPage() {
 
               {/* Image */}
               {issue.imageUrl && (
-                <img
-                  src={issue.imageUrl}
-                  alt="Issue"
-                  className="w-full h-64 object-cover rounded-lg border border-gray-200"
-                />
+                <div className="relative w-full h-64 border border-gray-200 dark:border-zinc-700 rounded-lg overflow-hidden">
+                  <Image
+                    src={issue.imageUrl}
+                    alt="Issue"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
               )}
 
               {/* Description */}
