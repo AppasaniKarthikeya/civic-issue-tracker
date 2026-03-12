@@ -49,34 +49,24 @@ export async function getIssue(issueId: string): Promise<Issue | null> {
  * Get all issues (optionally filtered)
  */
 export async function getIssues(filters?: IssueFilters): Promise<Issue[]> {
-  let q = query(collection(db, ISSUES_COLLECTION), orderBy('createdAt', 'desc'));
+  // To bypass any Firebase index requirements, we fetch all issues and filter/sort them on the client
+  const q = query(collection(db, ISSUES_COLLECTION));
+  const snapshot = await getDocs(q);
+  
+  let issues = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Issue));
 
   if (filters?.category) {
-    q = query(
-      collection(db, ISSUES_COLLECTION),
-      where('category', '==', filters.category),
-      orderBy('createdAt', 'desc')
-    );
+    issues = issues.filter(i => i.category === filters.category);
   }
-
   if (filters?.status) {
-    q = query(
-      collection(db, ISSUES_COLLECTION),
-      where('status', '==', filters.status),
-      orderBy('createdAt', 'desc')
-    );
+    issues = issues.filter(i => i.status === filters.status);
   }
-
   if (filters?.priority) {
-    q = query(
-      collection(db, ISSUES_COLLECTION),
-      where('priority', '==', filters.priority),
-      orderBy('createdAt', 'desc')
-    );
+    issues = issues.filter(i => i.priority === filters.priority);
   }
 
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Issue));
+  // Sort descending by creation date
+  return issues.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
 /**
@@ -85,11 +75,13 @@ export async function getIssues(filters?: IssueFilters): Promise<Issue[]> {
 export async function getUserIssues(userId: string): Promise<Issue[]> {
   const q = query(
     collection(db, ISSUES_COLLECTION),
-    where('userId', '==', userId),
-    orderBy('createdAt', 'desc')
+    where('userId', '==', userId)
   );
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Issue));
+  const issues = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Issue));
+  
+  // Sort descending by creation date
+  return issues.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
 /**
@@ -112,9 +104,11 @@ export async function updateIssueStatus(
 export function subscribeToIssues(
   callback: (issues: Issue[]) => void
 ): Unsubscribe {
-  const q = query(collection(db, ISSUES_COLLECTION), orderBy('createdAt', 'desc'));
+  const q = query(collection(db, ISSUES_COLLECTION));
   return onSnapshot(q, (snapshot) => {
     const issues = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Issue));
+    // Sort descending by creation date
+    issues.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     callback(issues);
   });
 }
