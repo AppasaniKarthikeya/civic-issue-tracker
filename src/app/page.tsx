@@ -90,7 +90,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white">What can you report?</h2>
-            <p className="mt-3 text-gray-600 max-w-xl mx-auto">
+            <p className="mt-3 text-gray-600 dark:text-gray-300 max-w-xl mx-auto">
               Our platform handles all types of civic issues in urban areas
             </p>
           </div>
@@ -138,7 +138,7 @@ export default function HomePage() {
                   'Get notified when your issue is verified and resolved by authorities.',
               },
             ].map((step, i) => (
-              <div key={i} className="text-center p-8 bg-white dark:bg-black rounded-xl border border-gray-200 dark:border-zinc-800 shadow-sm transition-colors duration-300 hover:shadow-md">
+              <div key={i} className="text-center p-8 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 shadow-sm transition-colors duration-300 hover:shadow-md">
                 <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-colors duration-300">
                   {step.icon}
                 </div>

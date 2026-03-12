@@ -99,17 +99,17 @@ export default function ReportIssuePage() {
           <ArrowLeft size={16} />
           Back to Dashboard
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">Report a Civic Issue</h1>
-        <p className="text-gray-600 mt-1">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Report a Civic Issue</h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">
           Fill in the details below to report an issue in your area
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-6 shadow-sm">
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 space-y-6 shadow-sm">
           {/* Image Upload */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Issue Photo <span className="text-red-500">*</span>
             </label>
             <ImageUpload
@@ -158,7 +158,7 @@ export default function ReportIssuePage() {
 
           {/* Voice Recording */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Voice Note (optional)
             </label>
             <VoiceRecorder

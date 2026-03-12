@@ -58,13 +58,13 @@ export default function IssueCard({ issue, showUser = false }: IssueCardProps) {
       <div className="p-4 space-y-2">
         <div className="flex items-center gap-2">
           <span className="text-lg">{category?.icon}</span>
-          <h3 className="font-semibold text-gray-900 line-clamp-1">
+          <h3 className="font-semibold text-gray-900 dark:text-white line-clamp-1">
             {category?.label || issue.category}
           </h3>
         </div>
 
         {issue.description && (
-          <p className="text-sm text-gray-600 line-clamp-2">{issue.description}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{issue.description}</p>
         )}
 
         <div className="flex items-center justify-between pt-2">
@@ -85,7 +85,7 @@ export default function IssueCard({ issue, showUser = false }: IssueCardProps) {
         </div>
 
         {showUser && (
-          <p className="text-xs text-gray-400 pt-1 border-t border-gray-100">
+          <p className="text-xs text-gray-400 dark:text-gray-500 pt-1 border-t border-gray-100 dark:border-gray-700">
             Reported by {issue.userName}
           </p>
         )}
