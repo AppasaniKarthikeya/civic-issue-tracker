@@ -13,7 +13,7 @@ export type IssueCategory =
 
 export type IssuePriority = 'low' | 'medium' | 'high' | 'emergency';
 
-export type IssueStatus = 'pending' | 'verified' | 'in_progress' | 'resolved';
+export type IssueStatus = 'pending' | 'verified' | 'in_progress' | 'resolved' | 'invalid';
 
 export type UserRole = 'citizen' | 'admin';
 
@@ -81,6 +81,7 @@ export interface DashboardStats {
   verified: number;
   inProgress: number;
   resolved: number;
+  invalid: number;
   emergency: number;
   categoryBreakdown: Record<IssueCategory, number>;
 }

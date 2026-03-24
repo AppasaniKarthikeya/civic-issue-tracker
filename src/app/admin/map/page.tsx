@@ -11,6 +11,7 @@ import IssueFiltersBar from '@/components/features/IssueFiltersBar';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Crosshair } from 'lucide-react';
 
 export default function AdminMapPage() {
   const { user, profile, loading: authLoading } = useAuth();
@@ -19,11 +20,14 @@ export default function AdminMapPage() {
   const [filters, setFilters] = useState<IssueFilters>({});
   const [loading, setLoading] = useState(true);
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
+  const [locatingUser, setLocatingUser] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapInstanceRef = useRef<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const markersRef = useRef<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const userMarkerRef = useRef<any>(null);
 
   useEffect(() => {
     if (!authLoading && (!user || profile?.role !== 'admin')) {
@@ -147,13 +151,60 @@ export default function AdminMapPage() {
     updateMarkers();
   }, [filteredIssues]);
 
+  // Self-location handler
+  const handleMyLocation = async () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by this browser.');
+      return;
+    }
+
+    setLocatingUser(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        const L = (await import('leaflet')).default;
+        const map = mapInstanceRef.current;
+
+        if (map) {
+          map.setView([latitude, longitude], 15);
+
+          // Remove previous user marker
+          if (userMarkerRef.current) {
+            userMarkerRef.current.remove();
+          }
+
+          // Add a distinct blue pulsing marker for user location
+          const userIcon = L.divIcon({
+            html: `<div style="width: 20px; height: 20px; border-radius: 50%; background-color: #3b82f6; border: 3px solid white; box-shadow: 0 0 0 4px rgba(59,130,246,0.3), 0 2px 6px rgba(0,0,0,0.3);"></div>`,
+            className: '',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10],
+          });
+
+          userMarkerRef.current = L.marker([latitude, longitude], { icon: userIcon })
+            .addTo(map)
+            .bindPopup('You are here')
+            .openPopup();
+        }
+
+        setLocatingUser(false);
+      },
+      (error) => {
+        console.error('Geolocation error:', error);
+        alert('Unable to get your location. Please check your browser permissions.');
+        setLocatingUser(false);
+      },
+      { enableHighAccuracy: true }
+    );
+  };
+
   if (authLoading || loading) return <LoadingSpinner />;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Map Visualization</h1>
-        <p className="text-gray-600 mt-1">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Map Visualization</h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">
           View all reported issues on the map. Color indicates priority level.
         </p>
       </div>
@@ -162,9 +213,9 @@ export default function AdminMapPage() {
         <IssueFiltersBar filters={filters} onFilterChange={setFilters} />
       </div>
 
-      {/* Priority Legend */}
-      <div className="flex flex-wrap items-center gap-4 mb-4 p-3 bg-white rounded-lg border border-gray-200">
-        <span className="text-sm font-medium text-gray-600">Priority:</span>
+      {/* Priority Legend + My Location */}
+      <div className="flex flex-wrap items-center gap-4 mb-4 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Priority:</span>
         {ISSUE_PRIORITIES.map((p) => (
           <div key={p.value} className="flex items-center gap-1.5">
             <div
@@ -180,12 +231,20 @@ export default function AdminMapPage() {
                     : '#ef4444',
               }}
             />
-            <span className="text-xs text-gray-600">{p.label}</span>
+            <span className="text-xs text-gray-600 dark:text-gray-400">{p.label}</span>
           </div>
         ))}
-        <span className="text-sm text-gray-500 ml-auto">
+        <span className="text-sm text-gray-500 dark:text-gray-400 ml-auto">
           {filteredIssues.length} issue{filteredIssues.length !== 1 ? 's' : ''} shown
         </span>
+        <button
+          onClick={handleMyLocation}
+          disabled={locatingUser}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors disabled:opacity-50"
+        >
+          <Crosshair size={14} className={locatingUser ? 'animate-spin' : ''} />
+          {locatingUser ? 'Locating...' : 'My Location'}
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -193,15 +252,15 @@ export default function AdminMapPage() {
         <div className="lg:col-span-2">
           <div
             ref={mapRef}
-            className="w-full h-[600px] rounded-xl border border-gray-200 overflow-hidden z-0"
+            className="w-full h-[600px] rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-0"
           />
         </div>
 
         {/* Selected Issue Detail Panel */}
         <div>
           {selectedIssue ? (
-            <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-4 shadow-sm sticky top-24">
-              <h3 className="font-semibold text-gray-900">
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 space-y-4 shadow-sm sticky top-24">
+              <h3 className="font-semibold text-gray-900 dark:text-white">
                 {ISSUE_CATEGORIES.find((c) => c.value === selectedIssue.category)?.icon}{' '}
                 {ISSUE_CATEGORIES.find((c) => c.value === selectedIssue.category)?.label}
               </h3>
@@ -223,15 +282,15 @@ export default function AdminMapPage() {
               </div>
 
               {selectedIssue.description && (
-                <p className="text-sm text-gray-600">{selectedIssue.description}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{selectedIssue.description}</p>
               )}
 
-              <div className="text-xs text-gray-500 space-y-1">
+              <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
                 <p>
-                  <strong>Reporter:</strong> {selectedIssue.userName}
+                  <strong className="text-gray-700 dark:text-gray-300">Reporter:</strong> {selectedIssue.userName}
                 </p>
                 <p>
-                  <strong>Location:</strong>{' '}
+                  <strong className="text-gray-700 dark:text-gray-300">Location:</strong>{' '}
                   {selectedIssue.locationAddress ||
                     `${selectedIssue.locationLat.toFixed(4)}, ${selectedIssue.locationLng.toFixed(4)}`}
                 </p>
@@ -245,8 +304,8 @@ export default function AdminMapPage() {
               </Link>
             </div>
           ) : (
-            <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
-              <p className="text-gray-500 text-sm">Click a marker on the map to view issue details</p>
+            <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
+              <p className="text-gray-500 dark:text-gray-400 text-sm">Click a marker on the map to view issue details</p>
             </div>
           )}
         </div>

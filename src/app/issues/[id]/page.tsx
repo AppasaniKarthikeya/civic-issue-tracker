@@ -18,7 +18,7 @@ import Card, { CardBody, CardHeader } from '@/components/ui/Card';
 import LocationPicker from '@/components/features/LocationPicker';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import {
   ArrowLeft,
   Clock,
@@ -109,8 +109,8 @@ export default function IssueDetailsPage() {
   if (!issue) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-12 text-center">
-        <h2 className="text-xl font-bold text-gray-900">Issue not found</h2>
-        <p className="text-gray-500 mt-2">The issue you&apos;re looking for doesn&apos;t exist.</p>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Issue not found</h2>
+        <p className="text-gray-500 dark:text-gray-400 mt-2">The issue you&apos;re looking for doesn&apos;t exist.</p>
       </div>
     );
   }
@@ -118,11 +118,23 @@ export default function IssueDetailsPage() {
   const category = ISSUE_CATEGORIES.find((c) => c.value === issue.category);
   const isAdmin = profile?.role === 'admin';
 
+  /** Get a color for the timeline dot based on the target status */
+  const getStatusDotColor = (status: IssueStatus) => {
+    switch (status) {
+      case 'pending': return 'bg-gray-400';
+      case 'verified': return 'bg-blue-500';
+      case 'in_progress': return 'bg-purple-500';
+      case 'resolved': return 'bg-green-500';
+      case 'invalid': return 'bg-red-500';
+      default: return 'bg-gray-400';
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <Link
         href={isAdmin ? '/admin/issues' : '/my-reports'}
-        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-4"
+        className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 mb-4"
       >
         <ArrowLeft size={16} />
         Back to {isAdmin ? 'All Issues' : 'My Reports'}
@@ -136,7 +148,7 @@ export default function IssueDetailsPage() {
             <CardBody className="space-y-4">
               {/* Emergency Banner */}
               {issue.priority === 'emergency' && (
-                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400">
                   <AlertTriangle size={18} />
                   <span className="font-medium text-sm">Emergency Priority Issue</span>
                 </div>
@@ -146,7 +158,7 @@ export default function IssueDetailsPage() {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-2xl">{category?.icon}</span>
-                    <h1 className="text-xl font-bold text-gray-900">
+                    <h1 className="text-xl font-bold text-gray-900 dark:text-white">
                       {category?.label || issue.category}
                     </h1>
                   </div>
@@ -155,7 +167,7 @@ export default function IssueDetailsPage() {
                     <PriorityBadge priority={issue.priority} />
                   </div>
                 </div>
-                <div className="text-right text-sm text-gray-500">
+                <div className="text-right text-sm text-gray-500 dark:text-gray-400">
                   <div className="flex items-center gap-1">
                     <Clock size={14} />
                     {format(new Date(issue.createdAt), 'MMM d, yyyy h:mm a')}
@@ -178,27 +190,27 @@ export default function IssueDetailsPage() {
               {/* Description */}
               {issue.description && (
                 <div>
-                  <h3 className="text-sm font-medium text-gray-700 mb-1">Description</h3>
-                  <p className="text-gray-600">{issue.description}</p>
+                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</h3>
+                  <p className="text-gray-600 dark:text-gray-400">{issue.description}</p>
                 </div>
               )}
 
               {/* Voice Note */}
               {issue.voiceUrl && (
                 <div>
-                  <h3 className="text-sm font-medium text-gray-700 mb-1">Voice Note</h3>
+                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Voice Note</h3>
                   <audio src={issue.voiceUrl} controls className="w-full" />
                 </div>
               )}
 
               {/* Reporter Info */}
-              <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <User size={14} className="text-blue-600" />
+              <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center">
+                  <User size={14} className="text-blue-600 dark:text-blue-400" />
                 </div>
                 <div className="text-sm">
-                  <p className="font-medium text-gray-900">{issue.userName}</p>
-                  <p className="text-gray-500">{issue.userEmail}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">{issue.userName}</p>
+                  <p className="text-gray-500 dark:text-gray-400">{issue.userEmail}</p>
                 </div>
               </div>
             </CardBody>
@@ -207,7 +219,7 @@ export default function IssueDetailsPage() {
           {/* Map */}
           <Card>
             <CardHeader>
-              <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+              <h2 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                 <MapPin size={18} />
                 Location
               </h2>
@@ -220,7 +232,7 @@ export default function IssueDetailsPage() {
                 onLocationSelect={() => {}}
               />
               {issue.locationAddress && (
-                <p className="text-sm text-gray-600 mt-2">{issue.locationAddress}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">{issue.locationAddress}</p>
               )}
             </CardBody>
           </Card>
@@ -228,55 +240,55 @@ export default function IssueDetailsPage() {
           {/* Comments Section */}
           <Card>
             <CardHeader>
-              <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+              <h2 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                 <MessageSquare size={18} />
                 Comments ({comments.length})
               </h2>
             </CardHeader>
             <CardBody className="space-y-4">
               {comments.length === 0 && (
-                <p className="text-sm text-gray-500 text-center py-4">No comments yet</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">No comments yet</p>
               )}
               {comments.map((comment) => (
                 <div key={comment.id} className="flex gap-3">
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      comment.userRole === 'admin' ? 'bg-purple-100' : 'bg-blue-100'
+                      comment.userRole === 'admin' ? 'bg-purple-100 dark:bg-purple-900/30' : 'bg-blue-100 dark:bg-blue-900/30'
                     }`}
                   >
                     <User
                       size={14}
-                      className={comment.userRole === 'admin' ? 'text-purple-600' : 'text-blue-600'}
+                      className={comment.userRole === 'admin' ? 'text-purple-600 dark:text-purple-400' : 'text-blue-600 dark:text-blue-400'}
                     />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-gray-900">
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
                         {comment.userName}
                       </span>
                       {comment.userRole === 'admin' && (
-                        <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">
+                        <span className="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-1.5 py-0.5 rounded">
                           Admin
                         </span>
                       )}
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-gray-400 dark:text-gray-500">
                         {format(new Date(comment.createdAt), 'MMM d, h:mm a')}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600 mt-1">{comment.text}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{comment.text}</p>
                   </div>
                 </div>
               ))}
 
               {/* Add Comment Form */}
               {user && (
-                <form onSubmit={handleAddComment} className="flex gap-2 pt-3 border-t border-gray-100">
+                <form onSubmit={handleAddComment} className="flex gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
                   <input
                     type="text"
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     placeholder="Add a comment..."
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 dark:placeholder-gray-500"
                   />
                   <Button type="submit" size="sm" loading={submittingComment} disabled={!newComment.trim()}>
                     <Send size={14} />
@@ -293,13 +305,13 @@ export default function IssueDetailsPage() {
           {isAdmin && (
             <Card>
               <CardHeader>
-                <h2 className="font-semibold text-gray-900">Update Status</h2>
+                <h2 className="font-semibold text-gray-900 dark:text-white">Update Status</h2>
               </CardHeader>
               <CardBody className="space-y-3">
                 <select
                   value={newStatus}
                   onChange={(e) => setNewStatus(e.target.value as IssueStatus)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select new status</option>
                   {ISSUE_STATUSES.filter((s) => s.value !== issue.status).map((s) => (
@@ -312,7 +324,7 @@ export default function IssueDetailsPage() {
                   placeholder="Add a note about this update..."
                   value={statusNote}
                   onChange={(e) => setStatusNote(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none placeholder-gray-400 dark:placeholder-gray-500"
                   rows={3}
                 />
                 <Button
@@ -331,7 +343,7 @@ export default function IssueDetailsPage() {
           {/* Status Timeline */}
           <Card>
             <CardHeader>
-              <h2 className="font-semibold text-gray-900">Status History</h2>
+              <h2 className="font-semibold text-gray-900 dark:text-white">Status History</h2>
             </CardHeader>
             <CardBody>
               <div className="space-y-4">
@@ -339,12 +351,15 @@ export default function IssueDetailsPage() {
                 <div className="flex gap-3">
                   <div className="flex flex-col items-center">
                     <div className="w-3 h-3 bg-blue-600 rounded-full" />
-                    {statusUpdates.length > 0 && <div className="w-0.5 flex-1 bg-gray-200 mt-1" />}
+                    {statusUpdates.length > 0 && <div className="w-0.5 flex-1 bg-gray-200 dark:bg-gray-600 mt-1" />}
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">Issue Created</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">Issue Created</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       {format(new Date(issue.createdAt), 'MMM d, yyyy h:mm a')}
+                    </p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">
+                      {formatDistanceToNow(new Date(issue.createdAt), { addSuffix: true })}
                     </p>
                   </div>
                 </div>
@@ -352,23 +367,25 @@ export default function IssueDetailsPage() {
                 {statusUpdates.map((update, i) => (
                   <div key={update.id} className="flex gap-3">
                     <div className="flex flex-col items-center">
-                      <div className="w-3 h-3 bg-blue-600 rounded-full" />
+                      <div className={`w-3 h-3 ${getStatusDotColor(update.newStatus)} rounded-full`} />
                       {i < statusUpdates.length - 1 && (
-                        <div className="w-0.5 flex-1 bg-gray-200 mt-1" />
+                        <div className="w-0.5 flex-1 bg-gray-200 dark:bg-gray-600 mt-1" />
                       )}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
                         <StatusBadge status={update.previousStatus} />
                         <span className="mx-1">→</span>
                         <StatusBadge status={update.newStatus} />
                       </p>
                       {update.note && (
-                        <p className="text-xs text-gray-600 mt-1">{update.note}</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">{update.note}</p>
                       )}
-                      <p className="text-xs text-gray-400 mt-1">
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                         by {update.updatedByName} •{' '}
                         {format(new Date(update.createdAt), 'MMM d, h:mm a')}
+                        {' · '}
+                        {formatDistanceToNow(new Date(update.createdAt), { addSuffix: true })}
                       </p>
                     </div>
                   </div>
@@ -380,7 +397,7 @@ export default function IssueDetailsPage() {
           {/* Issue Details */}
           <Card>
             <CardHeader>
-              <h2 className="font-semibold text-gray-900">Details</h2>
+              <h2 className="font-semibold text-gray-900 dark:text-white">Details</h2>
             </CardHeader>
             <CardBody className="space-y-3">
               <DetailRow label="Category" value={`${category?.icon} ${category?.label}`} />
@@ -421,8 +438,8 @@ function DetailRow({
 }) {
   return (
     <div className="flex justify-between items-center text-sm">
-      <span className="text-gray-500">{label}</span>
-      {children || <span className="text-gray-900 font-medium">{value}</span>}
+      <span className="text-gray-500 dark:text-gray-400">{label}</span>
+      {children || <span className="text-gray-900 dark:text-white font-medium">{value}</span>}
     </div>
   );
 }

@@ -5,7 +5,6 @@ import {
   getDocs,
   query,
   where,
-  orderBy,
   onSnapshot,
   Unsubscribe,
 } from 'firebase/firestore';
@@ -14,6 +13,11 @@ import { Comment, StatusUpdate, IssueStatus, UserRole } from '@/types';
 
 const COMMENTS_COLLECTION = 'comments';
 const STATUS_UPDATES_COLLECTION = 'status_updates';
+
+/** Sort helper – ascending by createdAt */
+function sortByCreatedAt<T extends { createdAt: string }>(items: T[]): T[] {
+  return items.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+}
 
 /**
  * Add a comment to an issue
@@ -37,20 +41,20 @@ export async function addComment(
 }
 
 /**
- * Get comments for an issue
+ * Get comments for an issue (sorted client-side to avoid Firebase composite index)
  */
 export async function getComments(issueId: string): Promise<Comment[]> {
   const q = query(
     collection(db, COMMENTS_COLLECTION),
-    where('issueId', '==', issueId),
-    orderBy('createdAt', 'asc')
+    where('issueId', '==', issueId)
   );
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Comment));
+  const comments = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Comment));
+  return sortByCreatedAt(comments);
 }
 
 /**
- * Subscribe to comments for real-time updates
+ * Subscribe to comments for real-time updates (sorted client-side)
  */
 export function subscribeToComments(
   issueId: string,
@@ -58,12 +62,11 @@ export function subscribeToComments(
 ): Unsubscribe {
   const q = query(
     collection(db, COMMENTS_COLLECTION),
-    where('issueId', '==', issueId),
-    orderBy('createdAt', 'asc')
+    where('issueId', '==', issueId)
   );
   return onSnapshot(q, (snapshot) => {
     const comments = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Comment));
-    callback(comments);
+    callback(sortByCreatedAt(comments));
   });
 }
 
@@ -91,20 +94,20 @@ export async function addStatusUpdate(
 }
 
 /**
- * Get status update history for an issue
+ * Get status update history for an issue (sorted client-side)
  */
 export async function getStatusUpdates(issueId: string): Promise<StatusUpdate[]> {
   const q = query(
     collection(db, STATUS_UPDATES_COLLECTION),
-    where('issueId', '==', issueId),
-    orderBy('createdAt', 'asc')
+    where('issueId', '==', issueId)
   );
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as StatusUpdate));
+  const updates = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as StatusUpdate));
+  return sortByCreatedAt(updates);
 }
 
 /**
- * Subscribe to status updates for real-time tracking
+ * Subscribe to status updates for real-time tracking (sorted client-side)
  */
 export function subscribeToStatusUpdates(
   issueId: string,
@@ -112,11 +115,10 @@ export function subscribeToStatusUpdates(
 ): Unsubscribe {
   const q = query(
     collection(db, STATUS_UPDATES_COLLECTION),
-    where('issueId', '==', issueId),
-    orderBy('createdAt', 'asc')
+    where('issueId', '==', issueId)
   );
   return onSnapshot(q, (snapshot) => {
     const updates = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as StatusUpdate));
-    callback(updates);
+    callback(sortByCreatedAt(updates));
   });
 }

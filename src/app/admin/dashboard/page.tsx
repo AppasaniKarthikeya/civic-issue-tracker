@@ -19,6 +19,7 @@ import {
   MapPin,
   BarChart3,
   Settings,
+  XCircle,
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -55,8 +56,8 @@ export default function AdminDashboard() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-600 mt-1">Overview of civic issues and system analytics</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">Overview of civic issues and system analytics</p>
         </div>
         <div className="flex gap-3">
           <Link
@@ -68,7 +69,7 @@ export default function AdminDashboard() {
           </Link>
           <Link
             href="/admin/map"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-700 text-sm font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
             <MapPin size={16} />
             Map View
@@ -78,8 +79,8 @@ export default function AdminDashboard() {
 
       {/* Emergency Alert */}
       {emergencyIssues.length > 0 && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
-          <div className="flex items-center gap-2 text-red-700">
+        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+          <div className="flex items-center gap-2 text-red-700 dark:text-red-400">
             <AlertTriangle size={20} />
             <span className="font-semibold">
               {emergencyIssues.length} Emergency Issue{emergencyIssues.length !== 1 ? 's' : ''} Require Attention
@@ -90,7 +91,7 @@ export default function AdminDashboard() {
               <Link
                 key={issue.id}
                 href={`/issues/${issue.id}`}
-                className="block text-sm text-red-600 hover:underline"
+                className="block text-sm text-red-600 dark:text-red-400 hover:underline"
               >
                 • {ISSUE_CATEGORIES.find((c) => c.value === issue.category)?.label} -{' '}
                 {issue.locationAddress || 'Unknown location'}
@@ -101,12 +102,13 @@ export default function AdminDashboard() {
       )}
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4 mb-8">
         <StatCard title="Total" value={stats.total} icon={<FileText />} color="blue" />
         <StatCard title="Pending" value={stats.pending} icon={<Clock />} color="gray" />
         <StatCard title="Verified" value={stats.verified} icon={<Eye />} color="blue" />
         <StatCard title="In Progress" value={stats.inProgress} icon={<Settings />} color="purple" />
         <StatCard title="Resolved" value={stats.resolved} icon={<CheckCircle />} color="green" />
+        <StatCard title="Invalid" value={stats.invalid} icon={<XCircle />} color="red" />
         <StatCard title="Emergency" value={stats.emergency} icon={<AlertTriangle />} color="red" />
       </div>
 
@@ -114,7 +116,7 @@ export default function AdminDashboard() {
         {/* Category Breakdown */}
         <Card>
           <CardHeader>
-            <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+            <h2 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
               <BarChart3 size={18} />
               Issues by Category
             </h2>
@@ -129,10 +131,10 @@ export default function AdminDashboard() {
                     <span className="text-xl w-8">{cat.icon}</span>
                     <div className="flex-1">
                       <div className="flex justify-between text-sm mb-1">
-                        <span className="font-medium text-gray-700">{cat.label}</span>
-                        <span className="text-gray-500">{count}</span>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">{cat.label}</span>
+                        <span className="text-gray-500 dark:text-gray-400">{count}</span>
                       </div>
-                      <div className="w-full bg-gray-100 rounded-full h-2">
+                      <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
                         <div
                           className="bg-blue-600 h-2 rounded-full transition-all"
                           style={{ width: `${pct}%` }}
@@ -149,11 +151,11 @@ export default function AdminDashboard() {
         {/* Recent Issues */}
         <Card>
           <CardHeader className="flex items-center justify-between">
-            <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+            <h2 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
               <TrendingUp size={18} />
               Recent Issues
             </h2>
-            <Link href="/admin/issues" className="text-sm text-blue-600 hover:underline">
+            <Link href="/admin/issues" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
               View all
             </Link>
           </CardHeader>
@@ -165,14 +167,14 @@ export default function AdminDashboard() {
                   <Link
                     key={issue.id}
                     href={`/issues/${issue.id}`}
-                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                   >
                     <span className="text-lg">{cat?.icon}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                         {cat?.label} - {issue.userName}
                       </p>
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                         {issue.locationAddress || `${issue.locationLat.toFixed(3)}, ${issue.locationLng.toFixed(3)}`}
                       </p>
                     </div>
@@ -188,6 +190,8 @@ export default function AdminDashboard() {
                             ? 'bg-purple-500'
                             : issue.status === 'verified'
                             ? 'bg-blue-500'
+                            : issue.status === 'invalid'
+                            ? 'bg-red-500'
                             : 'bg-gray-400'
                         }`}
                       />
@@ -196,7 +200,7 @@ export default function AdminDashboard() {
                 );
               })}
               {recentIssues.length === 0 && (
-                <p className="text-sm text-gray-500 text-center py-4">No issues reported yet</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">No issues reported yet</p>
               )}
             </div>
           </CardBody>
@@ -218,20 +222,20 @@ function StatCard({
   color: string;
 }) {
   const colors: Record<string, string> = {
-    blue: 'bg-blue-50 text-blue-600',
-    gray: 'bg-gray-50 text-gray-600',
-    purple: 'bg-purple-50 text-purple-600',
-    green: 'bg-green-50 text-green-600',
-    red: 'bg-red-50 text-red-600',
+    blue: 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
+    gray: 'bg-gray-50 text-gray-600 dark:bg-gray-700/50 dark:text-gray-400',
+    purple: 'bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
+    green: 'bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400',
+    red: 'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400',
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
       <div className={`w-10 h-10 ${colors[color]} rounded-lg flex items-center justify-center mb-3`}>
         {React.cloneElement(icon as React.ReactElement, { size: 20 })}
       </div>
-      <p className="text-2xl font-bold text-gray-900">{value}</p>
-      <p className="text-xs text-gray-500 mt-0.5">{title}</p>
+      <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
+      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{title}</p>
     </div>
   );
 }

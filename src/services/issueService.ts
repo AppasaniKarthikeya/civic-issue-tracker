@@ -139,6 +139,7 @@ export function calculateStats(issues: Issue[]): DashboardStats {
     verified: 0,
     inProgress: 0,
     resolved: 0,
+    invalid: 0,
     emergency: 0,
     categoryBreakdown: {
       pothole: 0,
@@ -160,6 +161,7 @@ export function calculateStats(issues: Issue[]): DashboardStats {
       case 'verified': stats.verified++; break;
       case 'in_progress': stats.inProgress++; break;
       case 'resolved': stats.resolved++; break;
+      case 'invalid': stats.invalid++; break;
     }
     // Emergency count
     if (issue.priority === 'emergency') stats.emergency++;

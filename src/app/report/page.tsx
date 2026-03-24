@@ -68,19 +68,22 @@ export default function ReportIssuePage() {
 
       // Create issue
       toast.loading('Submitting report...', { id: 'submit' });
-      await createIssue({
+      const issueData: Record<string, unknown> = {
         userId: user.uid,
         userName: profile.displayName,
         userEmail: profile.email,
         imageUrl,
-        voiceUrl,
         description,
         category,
         priority,
         locationLat: location.lat,
         locationLng: location.lng,
         locationAddress: location.address,
-      });
+      };
+      if (voiceUrl) {
+        issueData.voiceUrl = voiceUrl;
+      }
+      await createIssue(issueData as Parameters<typeof createIssue>[0]);
 
       toast.success('Issue reported successfully!', { id: 'submit' });
       router.push('/my-reports');

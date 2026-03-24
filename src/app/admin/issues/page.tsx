@@ -54,8 +54,8 @@ export default function AdminIssuesPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">All Reported Issues</h1>
-        <p className="text-gray-600 mt-1">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">All Reported Issues</h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">
           Showing {filteredIssues.length} of {issues.length} issue{issues.length !== 1 ? 's' : ''}
         </p>
       </div>
@@ -65,10 +65,10 @@ export default function AdminIssuesPage() {
       </div>
 
       {filteredIssues.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
-          <FileText size={48} className="mx-auto text-gray-300 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900">No issues found</h3>
-          <p className="text-gray-500 mt-1">
+        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+          <FileText size={48} className="mx-auto text-gray-300 dark:text-gray-600 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">No issues found</h3>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
             {issues.length > 0
               ? 'Try adjusting your filters'
               : 'No civic issues have been reported yet'}

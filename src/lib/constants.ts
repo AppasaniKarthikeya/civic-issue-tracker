@@ -26,6 +26,7 @@ export const ISSUE_STATUSES: { value: IssueStatus; label: string; color: string 
   { value: 'verified', label: 'Verified', color: 'bg-blue-100 text-blue-800' },
   { value: 'in_progress', label: 'In Progress', color: 'bg-purple-100 text-purple-800' },
   { value: 'resolved', label: 'Resolved', color: 'bg-green-100 text-green-800' },
+  { value: 'invalid', label: 'Invalid', color: 'bg-red-100 text-red-800' },
 ];
 
 export const DEFAULT_CENTER = {
