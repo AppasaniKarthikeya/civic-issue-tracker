@@ -46,6 +46,9 @@ export default function AdminMapPage() {
 
   // Client-side filtering
   const filteredIssues = issues.filter((issue) => {
+    // Hide resolved and invalid on the map view
+    if (issue.status === 'resolved' || issue.status === 'invalid') return false;
+
     if (filters.category && issue.category !== filters.category) return false;
     if (filters.priority && issue.priority !== filters.priority) return false;
     if (filters.status && issue.status !== filters.status) return false;

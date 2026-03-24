@@ -15,18 +15,18 @@ export const ISSUE_CATEGORIES: { value: IssueCategory; label: string; icon: stri
 ];
 
 export const ISSUE_PRIORITIES: { value: IssuePriority; label: string; color: string }[] = [
-  { value: 'low', label: 'Low', color: 'bg-green-100 text-green-800' },
-  { value: 'medium', label: 'Medium', color: 'bg-yellow-100 text-yellow-800' },
-  { value: 'high', label: 'High', color: 'bg-orange-100 text-orange-800' },
-  { value: 'emergency', label: 'Emergency', color: 'bg-red-100 text-red-800' },
+  { value: 'low', label: 'Low', color: 'bg-green-600 text-white' },
+  { value: 'medium', label: 'Medium', color: 'bg-yellow-600 text-white' },
+  { value: 'high', label: 'High', color: 'bg-orange-600 text-white' },
+  { value: 'emergency', label: 'Emergency', color: 'bg-red-600 text-white' },
 ];
 
 export const ISSUE_STATUSES: { value: IssueStatus; label: string; color: string }[] = [
-  { value: 'pending', label: 'Pending', color: 'bg-gray-100 text-gray-800' },
-  { value: 'verified', label: 'Verified', color: 'bg-blue-100 text-blue-800' },
-  { value: 'in_progress', label: 'In Progress', color: 'bg-purple-100 text-purple-800' },
-  { value: 'resolved', label: 'Resolved', color: 'bg-green-100 text-green-800' },
-  { value: 'invalid', label: 'Invalid', color: 'bg-red-100 text-red-800' },
+  { value: 'pending', label: 'Pending', color: 'bg-purple-500 text-white' },
+  { value: 'verified', label: 'Verified', color: 'bg-blue-500 text-white' },
+  { value: 'in_progress', label: 'In Progress', color: 'bg-yellow-500 text-white' },
+  { value: 'resolved', label: 'Resolved', color: 'bg-green-500 text-white' },
+  { value: 'invalid', label: 'Invalid', color: 'bg-red-500 text-white' },
 ];
 
 export const DEFAULT_CENTER = {
