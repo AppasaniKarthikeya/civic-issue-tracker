@@ -112,35 +112,6 @@ export default function RegisterPage() {
               required
             />
 
-            {/* Role Selection */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Register as</label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, role: 'citizen' })}
-                  className={`p-3 rounded-lg border-2 text-sm font-medium transition-colors ${
-                    formData.role === 'citizen'
-                      ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
-                      : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600'
-                  }`}
-                >
-                  🙋 Citizen
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, role: 'admin' })}
-                  className={`p-3 rounded-lg border-2 text-sm font-medium transition-colors ${
-                    formData.role === 'admin'
-                      ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
-                      : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600'
-                  }`}
-                >
-                  🏛️ Authority
-                </button>
-              </div>
-            </div>
-
             <Button type="submit" loading={loading} className="w-full" size="lg">
               Create Account
             </Button>

@@ -80,7 +80,7 @@ export default function IssueDetailsPage() {
 
     setSubmittingComment(true);
     try {
-      await addComment(issueId, user.uid, profile.displayName, profile.role, newComment);
+      await addComment(issueId, user.uid, profile.displayName, profile.role, newComment, profile.photoUrl);
       setNewComment('');
       toast.success('Comment added');
     } catch {
@@ -268,16 +268,22 @@ export default function IssueDetailsPage() {
               )}
               {comments.map((comment) => (
                 <div key={comment.id} className="flex gap-3">
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      comment.userRole === 'admin' ? 'bg-purple-100 dark:bg-purple-900/30' : 'bg-blue-100 dark:bg-blue-900/30'
-                    }`}
-                  >
-                    <User
-                      size={14}
-                      className={comment.userRole === 'admin' ? 'text-purple-600 dark:text-purple-400' : 'text-blue-600 dark:text-blue-400'}
-                    />
-                  </div>
+                  {comment.userPhotoURL ? (
+                    <div className="w-8 h-8 relative rounded-full overflow-hidden flex-shrink-0">
+                      <Image src={comment.userPhotoURL} alt={comment.userName} fill className="object-cover" />
+                    </div>
+                  ) : (
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        comment.userRole === 'admin' ? 'bg-purple-100 dark:bg-purple-900/30' : 'bg-blue-100 dark:bg-blue-900/30'
+                      }`}
+                    >
+                      <User
+                        size={14}
+                        className={comment.userRole === 'admin' ? 'text-purple-600 dark:text-purple-400' : 'text-blue-600 dark:text-blue-400'}
+                      />
+                    </div>
+                  )}
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium text-gray-900 dark:text-white">

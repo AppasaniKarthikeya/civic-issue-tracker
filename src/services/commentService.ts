@@ -27,7 +27,8 @@ export async function addComment(
   userId: string,
   userName: string,
   userRole: UserRole,
-  text: string
+  text: string,
+  userPhotoURL?: string
 ): Promise<string> {
   const docRef = await addDoc(collection(db, COMMENTS_COLLECTION), {
     issueId,
@@ -35,6 +36,7 @@ export async function addComment(
     userName,
     userRole,
     text,
+    userPhotoURL: userPhotoURL || null,
     createdAt: new Date().toISOString(),
   });
   return docRef.id;

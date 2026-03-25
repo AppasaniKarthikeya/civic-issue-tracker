@@ -52,6 +52,7 @@ export interface Comment {
   issueId: string;
   userId: string;
   userName: string;
+  userPhotoURL?: string;
   userRole: UserRole;
   text: string;
   createdAt: string;
