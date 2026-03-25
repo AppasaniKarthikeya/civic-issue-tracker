@@ -21,10 +21,12 @@ import {
   Moon,
 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Navbar() {
   const { user, profile } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { t } = useLanguage();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = React.useState(false);
 
@@ -59,32 +61,32 @@ export default function Navbar() {
                 {isAdmin ? (
                   <>
                     <NavLink href="/admin/dashboard" icon={<LayoutDashboard size={18} />}>
-                      Dashboard
+                      {t('nav.dashboard')}
                     </NavLink>
                     <NavLink href="/admin/issues" icon={<List size={18} />}>
-                      All Issues
+                      {t('nav.allIssues')}
                     </NavLink>
                     <NavLink href="/admin/map" icon={<Home size={18} />}>
-                      Map View
+                      {t('nav.mapView')}
                     </NavLink>
                   </>
                 ) : (
                   <>
                     <NavLink href="/dashboard" icon={<Home size={18} />}>
-                      Home
+                      {t('nav.home')}
                     </NavLink>
                     <NavLink href="/report" icon={<PlusCircle size={18} />}>
-                      Report Issue
+                      {t('nav.report')}
                     </NavLink>
                     <NavLink href="/my-reports" icon={<List size={18} />}>
-                      My Reports
+                      {t('nav.myReports')}
                     </NavLink>
                   </>
                 )}
                 
                 <div className="ml-2 flex flex-row items-center">
                   <NavLink href="/settings" icon={<Settings size={18} />}>
-                    Settings
+                    {t('nav.settings')}
                   </NavLink>
                 </div>
 
@@ -127,13 +129,13 @@ export default function Navbar() {
                   href="/login"
                   className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                 >
-                  Login
+                  {t('nav.login')}
                 </Link>
                 <Link
                   href="/register"
                   className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  Register
+                  {t('nav.register')}
                 </Link>
               </div>
             )}
@@ -158,25 +160,25 @@ export default function Navbar() {
                 {isAdmin ? (
                   <>
                     <MobileNavLink href="/admin/dashboard" onClick={() => setMenuOpen(false)}>
-                      Dashboard
+                      {t('nav.dashboard')}
                     </MobileNavLink>
                     <MobileNavLink href="/admin/issues" onClick={() => setMenuOpen(false)}>
-                      All Issues
+                      {t('nav.allIssues')}
                     </MobileNavLink>
                     <MobileNavLink href="/admin/map" onClick={() => setMenuOpen(false)}>
-                      Map View
+                      {t('nav.mapView')}
                     </MobileNavLink>
                   </>
                 ) : (
                   <>
                     <MobileNavLink href="/dashboard" onClick={() => setMenuOpen(false)}>
-                      Home
+                      {t('nav.home')}
                     </MobileNavLink>
                     <MobileNavLink href="/report" onClick={() => setMenuOpen(false)}>
-                      Report Issue
+                      {t('nav.report')}
                     </MobileNavLink>
                     <MobileNavLink href="/my-reports" onClick={() => setMenuOpen(false)}>
-                      My Reports
+                      {t('nav.myReports')}
                     </MobileNavLink>
                   </>
                 )}
@@ -188,17 +190,17 @@ export default function Navbar() {
                     onClick={() => { handleLogout(); setMenuOpen(false); }}
                     className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg"
                   >
-                    Logout
+                    {t('nav.logout')}
                   </button>
                 </div>
               </>
             ) : (
               <>
                 <MobileNavLink href="/login" onClick={() => setMenuOpen(false)}>
-                  Login
+                  {t('nav.login')}
                 </MobileNavLink>
                 <MobileNavLink href="/register" onClick={() => setMenuOpen(false)}>
-                  Register
+                  {t('nav.register')}
                 </MobileNavLink>
               </>
             )}

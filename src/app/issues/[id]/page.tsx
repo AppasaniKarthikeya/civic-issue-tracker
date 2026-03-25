@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { subscribeToIssue, updateIssueStatus } from '@/services/issueService';
+import { subscribeToIssue, updateIssueStatus, deleteIssue } from '@/services/issueService';
 import {
   subscribeToComments,
   addComment,
@@ -28,12 +28,16 @@ import {
   User,
   CheckCircle,
   AlertTriangle,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
 export default function IssueDetailsPage() {
   const params = useParams();
+  const router = useRouter();
   const { user, profile } = useAuth();
   const issueId = params.id as string;
 
@@ -46,6 +50,11 @@ export default function IssueDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [submittingComment, setSubmittingComment] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showAllUpdates, setShowAllUpdates] = useState(false);
+
+  const MAX_VISIBLE_UPDATES = 4; // + 1 for the creation event = 5 total
 
   useEffect(() => {
     if (!issueId) return;
@@ -105,6 +114,19 @@ export default function IssueDetailsPage() {
     }
   };
 
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await deleteIssue(issueId);
+      toast.success('Report deleted successfully');
+      router.push('/admin/issues');
+    } catch {
+      toast.error('Failed to delete report');
+      setDeleting(false);
+      setShowDeleteConfirm(false);
+    }
+  };
+
   if (loading) return <LoadingSpinner />;
   if (!issue) {
     return (
@@ -118,17 +140,22 @@ export default function IssueDetailsPage() {
   const category = ISSUE_CATEGORIES.find((c) => c.value === issue.category);
   const isAdmin = profile?.role === 'admin';
 
-  /** Get a color for the timeline dot based on the target status */
   const getStatusDotColor = (status: IssueStatus) => {
     switch (status) {
-      case 'pending': return 'bg-gray-400';
+      case 'pending': return 'bg-purple-500';
       case 'verified': return 'bg-blue-500';
-      case 'in_progress': return 'bg-purple-500';
+      case 'in_progress': return 'bg-yellow-500';
       case 'resolved': return 'bg-green-500';
       case 'invalid': return 'bg-red-500';
       default: return 'bg-gray-400';
     }
   };
+
+  // Show-more logic for status updates
+  const visibleUpdates = showAllUpdates
+    ? statusUpdates
+    : statusUpdates.slice(0, MAX_VISIBLE_UPDATES);
+  const hiddenCount = statusUpdates.length - MAX_VISIBLE_UPDATES;
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -146,7 +173,6 @@ export default function IssueDetailsPage() {
           {/* Issue Header */}
           <Card>
             <CardBody className="space-y-4">
-              {/* Emergency Banner */}
               {issue.priority === 'emergency' && (
                 <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400">
                   <AlertTriangle size={18} />
@@ -175,19 +201,12 @@ export default function IssueDetailsPage() {
                 </div>
               </div>
 
-              {/* Image */}
               {issue.imageUrl && (
                 <div className="relative w-full h-64 border border-gray-200 dark:border-zinc-700 rounded-lg overflow-hidden">
-                  <Image
-                    src={issue.imageUrl}
-                    alt="Issue"
-                    fill
-                    className="object-cover"
-                  />
+                  <Image src={issue.imageUrl} alt="Issue" fill className="object-cover" />
                 </div>
               )}
 
-              {/* Description */}
               {issue.description && (
                 <div>
                   <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</h3>
@@ -195,7 +214,6 @@ export default function IssueDetailsPage() {
                 </div>
               )}
 
-              {/* Voice Note */}
               {issue.voiceUrl && (
                 <div>
                   <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Voice Note</h3>
@@ -203,7 +221,6 @@ export default function IssueDetailsPage() {
                 </div>
               )}
 
-              {/* Reporter Info */}
               <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                 <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center">
                   <User size={14} className="text-blue-600 dark:text-blue-400" />
@@ -280,7 +297,6 @@ export default function IssueDetailsPage() {
                 </div>
               ))}
 
-              {/* Add Comment Form */}
               {user && (
                 <form onSubmit={handleAddComment} className="flex gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
                   <input
@@ -301,46 +317,84 @@ export default function IssueDetailsPage() {
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Status Update Panel (Admin Only) */}
+          {/* Admin Actions: Status Update + Delete */}
           {isAdmin && (
-            <Card>
-              <CardHeader>
-                <h2 className="font-semibold text-gray-900 dark:text-white">Update Status</h2>
-              </CardHeader>
-              <CardBody className="space-y-3">
-                <select
-                  value={newStatus}
-                  onChange={(e) => setNewStatus(e.target.value as IssueStatus)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select new status</option>
-                  {ISSUE_STATUSES.filter((s) => s.value !== issue.status).map((s) => (
-                    <option key={s.value} value={s.value}>
-                      {s.label}
-                    </option>
-                  ))}
-                </select>
-                <textarea
-                  placeholder="Add a note about this update..."
-                  value={statusNote}
-                  onChange={(e) => setStatusNote(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none placeholder-gray-400 dark:placeholder-gray-500"
-                  rows={3}
-                />
-                <Button
-                  onClick={handleStatusUpdate}
-                  loading={updatingStatus}
-                  disabled={!newStatus}
-                  className="w-full"
-                >
-                  <CheckCircle size={16} />
-                  Update Status
-                </Button>
-              </CardBody>
-            </Card>
+            <>
+              <Card>
+                <CardHeader>
+                  <h2 className="font-semibold text-gray-900 dark:text-white">Update Status</h2>
+                </CardHeader>
+                <CardBody className="space-y-3">
+                  <select
+                    value={newStatus}
+                    onChange={(e) => setNewStatus(e.target.value as IssueStatus)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select new status</option>
+                    {ISSUE_STATUSES.filter((s) => s.value !== issue.status).map((s) => (
+                      <option key={s.value} value={s.value}>
+                        {s.label}
+                      </option>
+                    ))}
+                  </select>
+                  <textarea
+                    placeholder="Add a note about this update..."
+                    value={statusNote}
+                    onChange={(e) => setStatusNote(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none placeholder-gray-400 dark:placeholder-gray-500"
+                    rows={3}
+                  />
+                  <Button
+                    onClick={handleStatusUpdate}
+                    loading={updatingStatus}
+                    disabled={!newStatus}
+                    className="w-full"
+                  >
+                    <CheckCircle size={16} />
+                    Update Status
+                  </Button>
+                </CardBody>
+              </Card>
+
+              {/* Delete Report */}
+              <Card>
+                <CardBody>
+                  {!showDeleteConfirm ? (
+                    <button
+                      onClick={() => setShowDeleteConfirm(true)}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                    >
+                      <Trash2 size={16} />
+                      Delete Report
+                    </button>
+                  ) : (
+                    <div className="space-y-3">
+                      <p className="text-sm text-red-600 dark:text-red-400 font-medium text-center">
+                        Are you sure? This action cannot be undone.
+                      </p>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setShowDeleteConfirm(false)}
+                          className="flex-1 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleDelete}
+                          disabled={deleting}
+                          className="flex-1 px-3 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-1"
+                        >
+                          {deleting ? 'Deleting...' : 'Confirm Delete'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </CardBody>
+              </Card>
+            </>
           )}
 
-          {/* Status Timeline */}
+          {/* Status Timeline with Show More */}
           <Card>
             <CardHeader>
               <h2 className="font-semibold text-gray-900 dark:text-white">Status History</h2>
@@ -351,7 +405,7 @@ export default function IssueDetailsPage() {
                 <div className="flex gap-3">
                   <div className="flex flex-col items-center">
                     <div className="w-3 h-3 bg-blue-600 rounded-full" />
-                    {statusUpdates.length > 0 && <div className="w-0.5 flex-1 bg-gray-200 dark:bg-gray-600 mt-1" />}
+                    {(visibleUpdates.length > 0) && <div className="w-0.5 flex-1 bg-gray-200 dark:bg-gray-600 mt-1" />}
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">Issue Created</p>
@@ -364,11 +418,11 @@ export default function IssueDetailsPage() {
                   </div>
                 </div>
 
-                {statusUpdates.map((update, i) => (
+                {visibleUpdates.map((update, i) => (
                   <div key={update.id} className="flex gap-3">
                     <div className="flex flex-col items-center">
                       <div className={`w-3 h-3 ${getStatusDotColor(update.newStatus)} rounded-full`} />
-                      {i < statusUpdates.length - 1 && (
+                      {i < visibleUpdates.length - 1 && (
                         <div className="w-0.5 flex-1 bg-gray-200 dark:bg-gray-600 mt-1" />
                       )}
                     </div>
@@ -390,6 +444,26 @@ export default function IssueDetailsPage() {
                     </div>
                   </div>
                 ))}
+
+                {/* Show more / Show less toggle */}
+                {hiddenCount > 0 && (
+                  <button
+                    onClick={() => setShowAllUpdates(!showAllUpdates)}
+                    className="flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors ml-6"
+                  >
+                    {showAllUpdates ? (
+                      <>
+                        <ChevronUp size={14} />
+                        Show less
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown size={14} />
+                        Show more ({hiddenCount} more update{hiddenCount !== 1 ? 's' : ''})
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             </CardBody>
           </Card>

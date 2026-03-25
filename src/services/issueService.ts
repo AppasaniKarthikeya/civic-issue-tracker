@@ -4,6 +4,7 @@ import {
   doc,
   addDoc,
   updateDoc,
+  deleteDoc,
   getDoc,
   getDocs,
   query,
@@ -95,6 +96,14 @@ export async function updateIssueStatus(
     status,
     updatedAt: new Date().toISOString(),
   });
+}
+
+/**
+ * Delete an issue report (admin only)
+ */
+export async function deleteIssue(issueId: string): Promise<void> {
+  const docRef = doc(db, ISSUES_COLLECTION, issueId);
+  await deleteDoc(docRef);
 }
 
 /**

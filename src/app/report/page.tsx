@@ -17,9 +17,11 @@ import Button from '@/components/ui/Button';
 import toast from 'react-hot-toast';
 import { Send, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function ReportIssuePage() {
   const { user, profile } = useAuth();
+  const { t } = useLanguage();
   const router = useRouter();
 
   const [category, setCategory] = useState<IssueCategory>('pothole');
@@ -102,9 +104,9 @@ export default function ReportIssuePage() {
           <ArrowLeft size={16} />
           Back to Dashboard
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Report a Civic Issue</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('report.title')}</h1>
         <p className="text-gray-600 dark:text-gray-400 mt-1">
-          Fill in the details below to report an issue in your area
+          {t('report.subtitle')}
         </p>
       </div>
 
@@ -175,12 +177,12 @@ export default function ReportIssuePage() {
         <div className="flex justify-end gap-3">
           <Link href="/dashboard">
             <Button type="button" variant="outline">
-              Cancel
+              {t('report.cancel')}
             </Button>
           </Link>
           <Button type="submit" loading={submitting} size="lg">
             <Send size={18} />
-            Submit Report
+            {t('report.submit')}
           </Button>
         </div>
       </form>

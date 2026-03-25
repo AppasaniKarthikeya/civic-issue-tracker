@@ -12,6 +12,8 @@ import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
 import { Camera, Save, Loader2, User, Moon, Sun } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { LanguageCode } from '@/lib/translations';
 
 const INDIAN_LANGUAGES = [
   { value: 'english', label: 'English' },
@@ -30,6 +32,7 @@ const INDIAN_LANGUAGES = [
 export default function SettingsPage() {
   const { user, profile, refreshProfile } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { setLanguage: setGlobalLanguage, t } = useLanguage();
   
   const [displayName, setDisplayName] = useState('');
   const [phone, setPhone] = useState('');
@@ -97,9 +100,9 @@ export default function SettingsPage() {
         language,
       });
       await refreshProfile();
+      setGlobalLanguage(language as LanguageCode);
       toast.success('Profile updated successfully');
       
-      // Note: We don't implement full i18n translation here, just store the preference
       if (language !== profile.language) {
         toast.success(`Language preference set to ${INDIAN_LANGUAGES.find(l => l.value === language)?.label}`, {
           icon: '🌐',
@@ -115,13 +118,13 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Settings</h1>
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">{t('settings.title')}</h1>
 
       <div className="space-y-6">
         {/* Profile Section */}
         <Card>
           <CardHeader>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Profile Details</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('settings.profile')}</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage your personal information</p>
           </CardHeader>
           <CardBody>
@@ -217,7 +220,7 @@ export default function SettingsPage() {
         {/* Preferences Section */}
         <Card>
           <CardHeader>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Preferences</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{t('settings.preferences')}</h2>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Customize your app experience</p>
           </CardHeader>
           <CardBody className="space-y-6">
@@ -225,7 +228,7 @@ export default function SettingsPage() {
             {/* Language Selection */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Preferred Language
+                {t('settings.language')}
               </label>
               <Select
                 options={INDIAN_LANGUAGES}
@@ -276,7 +279,7 @@ export default function SettingsPage() {
             className="flex items-center gap-2"
           >
             {isSaving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
-            {isSaving ? 'Saving...' : 'Save Settings'}
+            {isSaving ? 'Saving...' : t('settings.save')}
           </Button>
         </div>
       </div>
